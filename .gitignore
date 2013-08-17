@@ -1,0 +1,8 @@
+# python
+*.py[co]
+
+# directory
+# created when using [python setup.py build] command
+build/*
+
+
