@@ -10,14 +10,18 @@ import traceback
 from nose.plugins import Plugin
 from nose.core import TextTestRunner
 
-class MColorStreamForLinux(object):
+class MColorStreamCrossPlatform(object):
+    """decorate the stream: add some useful methods"""
     def __init__(self, stream):
         try:
-            from blessings import Terminal
+            from colorama import init, Fore
         except:
-            pass
+            raise ImportError, "colorama isn't installed"
+        # init the colorama
+        init()
+        self.fore = Fore
         self.stream = stream
-        self.term = Terminal()
+        
 
     def __getattr__(self, attr):
         if attr in ('stream', '__getstate__'):
@@ -30,44 +34,31 @@ class MColorStreamForLinux(object):
         self.write('\n')
 
     def red(self, msg):
-        self.write(self.term.red + self.term.bold + msg + self.term.normal)
+        self.write(self.fore.RED + msg + self.fore.RESET)
 
     def green(self, msg):
-        self.write(self.term.green + self.term.bold + msg + self.term.normal)
+        self.write(self.fore.GREEN + msg + self.fore.RESET)
 
     def yellow(self, msg):
-        self.write(self.term.yellow + self.term.bold + msg + self.term.normal)
+        self.write(self.fore.YELLOW + msg + self.fore.RESET)
 
     def cyan(self, msg):
-        self.write(self.term.cyan + self.term.bold + msg + self.term.normal)
+        self.write(self.fore.CYAN + msg + self.fore.RESET)
 
     def white(self, msg):
-        self.write(self.term.white + self.term.bold + msg + self.term.normal)
+        self.write(self.fore.WHITE + msg + self.fore.RESET)
 
     def blue(self, msg):
-        self.write(self.term.blue + self.term.bold + msg + self.term.normal)
+        self.write(self.fore.BLUE + msg + self.fore.RESET)
 
-
-class MColorStreamForWindows(object):
-    pass
-
-
-class MColorStreamDecorator(object):
-    """It's my color stream decorator."""
-    def __init__(self, stream):
-        if os.name == "nt": # windows
-            self.stream = MColorStreamForWindows(stream)
-        elif os.name == "posix": # Linux
-            self.stream = MColorStreamForLinux(stream)
-    
-    def __getattr__(self, attr):
-        if attr in ('stream', '__getstate__'):
-            raise AtrributeError(attr)
-        return getattr(self.stream, attr)
+    def magenta(self, msg):
+        self.write(self.fore.MAGENTA + msg + self.fore.RESET)
 
 
 class MTextTestRunner(TextTestRunner):
-
+    """Just only show our own output: 
+        1). The key is to comment the result.printErrors()
+        2). Used by ColorUnit:prepareTestRunner()"""
     def __init__(self, stream):
         super(MTextTestRunner, self).__init__()
 
@@ -134,7 +125,7 @@ class ColorUnit(Plugin):
 
     def __init__(self):
         super(ColorUnit, self).__init__() # involved the Plugin init
-        self.stream = MColorStreamDecorator(sys.stderr)
+        self.stream = MColorStreamCrossPlatform(sys.stderr)
         self.separator1 = "=" * 70
         self.separator2 = "-" * 70
         self.STDOUT_LINE = '\nStdout:\n%s'
