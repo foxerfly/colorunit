@@ -100,7 +100,7 @@ If you have some good advice or idea, Welcome to communicate with me via email o
 --------------------------------------
 
 ###Drawbacks
-* Only for Linux;
+* Only for Linux[Fixed v0.1.2];
 
 * Why it needs to be registered again. For more informations, Please see **`How`** section
 
@@ -115,6 +115,8 @@ If you have some good advice or idea, Welcome to communicate with me via email o
 * [`nose`][nose]
 
 * [`blessing`](https://pypi.python.org/pypi/blessings/1.5)
+
+* [`colorama`](https://pypi.python.org/pypi/colorama)
 
 ----------------------------------------
 
