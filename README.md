@@ -36,7 +36,13 @@ Actually, The output isn't colorful. Don't tell me that you just like the style 
 
 Now:
 
+Ubuntu:
+
 ![img](./Screenshot_for_colorunit_output.png)
+
+Windows XP:    
+
+![img](./Screenshot_for_colorunit_output_winXP.png)
 
 ------------------------------------------
 
@@ -105,6 +111,15 @@ If you have some good advice or idea, Welcome to communicate with me via email o
 * Why it needs to be registered again. For more informations, Please see **`How`** section
 
 -----------------------------------------------
+
+###TODO
+* Showing every test case taken time
+
+* Adding a decorator class or method for finding and showing these taken time over your expected taken time.
+
+* Logging the output into specific file
+
+----------------------
 
 ###Thanks!
 

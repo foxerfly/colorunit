@@ -14,13 +14,16 @@ class MColorStreamCrossPlatform(object):
     """decorate the stream: add some useful methods"""
     def __init__(self, stream):
         try:
-            from colorama import init, Fore
+            from colorama import init, Fore, AnsiToWin32
         except:
             raise ImportError, "colorama isn't installed"
         # init the colorama
         init()
         self.fore = Fore
-        self.stream = stream
+        if os.name == 'nt':
+            self.stream = AnsiToWin32(sys.stderr).stream
+        else:
+            self.stream = stream
         
 
     def __getattr__(self, attr):

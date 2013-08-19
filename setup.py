@@ -3,7 +3,7 @@ import os
 
 
 setup(name="nose-colorxunit",
-        version = "0.1.2",
+        version = "0.1.3",
         description = "make unittest formatted and colorful output",
         long_description = open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
         license = "APACHE LICENSE VERSION 2.0",
