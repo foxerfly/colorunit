@@ -65,6 +65,16 @@ Only tree steps you need to follow:
 
 * **Install `colorunit`**:
 
+######Install with pip
+
+    > pip install nose-colorxunit
+
+######Uninstall with pip
+
+    > pip uninstall nose-colorxunit
+
+######Install with source
+
 	Active your own python virtual environment if you have. 
 	
 	> python setup.py build
@@ -72,6 +82,10 @@ Only tree steps you need to follow:
 	> python setup.py install
 	
 	* If you just want to install it as a `super user` or using `sudo` command, please think it **again**.
+
+######Uninstall
+
+    Just go to your own python virtual environment `site-packages` directory, and find `nose_colorxunit-*.*.*-py*.*.egg`, then delete it.
 
 
 *  **Register `colorunit`**
@@ -129,14 +143,12 @@ If you have some good advice or idea, Welcome to communicate with me via email o
 
 * [`nose`][nose]
 
-* [`blessing`](https://pypi.python.org/pypi/blessings/1.5)
-
 * [`colorama`](https://pypi.python.org/pypi/colorama)
 
 ----------------------------------------
 
 ###LICENSE
-[**`APACHE LICENSE VERSION 2.0`**](http://www.apache.org/licenses/LICENSE-2.0.html)
+[**`APACHE LICENSE VERSION 2.0`**](./LICENSE)
 
 
 [nose]:https://nose.readthedocs.org/en/latest/
