@@ -12,9 +12,11 @@ setup(name="nose-colorxunit",
         url="https://github.com/walkingnine/colorunit",
         py_modules = ["colorunit"],
         zip_safe = False,
+        keywords = "nose nosetest xunit"
         classifiers = [
-            "Development Status :: 2 - Alpha",
+            "Development Status :: 3 - Alpha",
             "License :: APACHE LICENSE VERSION 2.0",
+            "Operating System :: OS Independent", 
             "Programming Language :: Python",
             "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: Implementation :: CPython",
