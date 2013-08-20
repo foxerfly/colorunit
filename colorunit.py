@@ -138,6 +138,9 @@ class ColorUnit(Plugin):
         self.dots = True
         self.descriptions = True
     
+    #def options(self, parser, env):
+    #    parser.add_option()
+
     def getDescription(self, test):
         doc_first_line = test.shortDescription()
         if self.descriptions and doc_first_line:
