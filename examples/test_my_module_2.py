@@ -1,6 +1,7 @@
 import unittest
-from my_module import check_value
+from my_module import divide
 
 class MyUnitTest(unittest.TestCase):
-    def test_check_value_logs_warning(self):
-        check_value({}, 'key')
+    def test_add(self):
+        divide(10, 0) #Deliberately
+        

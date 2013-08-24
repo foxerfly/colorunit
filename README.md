@@ -1,51 +1,25 @@
-[TOC]
-
-
 colorunit: `A nose plugin`
 =====================
 
 ###Why?
-   Why do I write  this plugin for [nose][nose], The reason is so sample that the nose original output is so ugly, what's the worse, not friendly for tester, actually python tester.
+   Why do I write  this plugin for [nose][nose], The reason is so sample that the nose original report is so ugly, what's the worse, not friendly for tester, actually python tester.
 
-**The Original Output**:
-```
-(env)lee@ubuntu:noseplugin$ python test_my_module.py
-EF.S.
-======================================================================
-ERROR: test_Error (test_my_module.MyUnitTest)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/lee/program/workspace/python/test/TextTestRunner/noseplugin/test_my_module.py", line 14, in test_Error
-    self.add()
-AttributeError: 'MyUnitTest' object has no attribute 'add'
+###Snapshot
+**The Original report**:
 
-======================================================================
-FAIL: test_Failed (test_my_module.MyUnitTest)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/lee/program/workspace/python/test/TextTestRunner/noseplugin/test_my_module.py", line 11, in test_Failed
-    self.assertEqual(1, 2)
-AssertionError: 1 != 2
+![img](./examples/Screenshot_for_original_report.png)
 
-----------------------------------------------------------------------
-Ran 5 tests in 0.007s
-
-FAILED (SKIP=1, errors=1, failures=1)
-```
-Actually, The output isn't colorful. Don't tell me that you just like the style of output !
-
-Now:
+**Now**:
 
 Ubuntu:
 
-![img](./examples/Screenshot_for_colorunit_output.png)
+![img](./examples/Screenshot_for_colorunit_report.png)
 
 Windows XP:    
 
-![img](./examples/Screenshot_for_colorunit_output_winXP.png)
+![img](./examples/Screenshot_for_colorunit_report_winXP.png)
 
 ------------------------------------------
-
 ###What?
 What Does I do? I just write a class called **`ColorUnit`** which is inherited from **`nose.plugins.Plugin`**.
 
@@ -63,51 +37,44 @@ How to use this nose plugin: **`colorunit`**
 
 Only tree steps you need to follow:
 
-* **Install `colorunit`**:
-
+####Install `colorunit`:
 ######Install with pip
-
-    > pip install nose-colorxunit
+> pip install `nose-colorxunit`
 
 ######Uninstall with pip
-
-    > pip uninstall nose-colorxunit
+> pip uninstall `nose-colorxunit`
 
 ######Install with source
-
-	Active your own python virtual environment if you have. 
+* First, active your own python virtual environment if you have. 
 	
-	> python setup.py build
+> python setup.py build
 
-	> python setup.py install
+> python setup.py install
 	
-	* If you just want to install it as a `super user` or using `sudo` command, please think it **again**.
+* If you just want to install it as a `super user` or using `sudo` command, please think it **again**.
 
-######Uninstall
+######Uninstall with source
+Just go to your own python virtual environment `site-packages` directory, and find `nose_colorxunit-*.*.*-py*.*.egg`, then delete it.
 
-    Just go to your own python virtual environment `site-packages` directory, and find `nose_colorxunit-*.*.*-py*.*.egg`, then delete it.
+####Register `colorunit` [Optional]
+Now this is optional, just write the following code snippet into **Any one** of your test files if you like, for example, `test_demo.py`. 
+```python
+import nose
+from colorunit import ColorUnit
+if __name__ == '__main__':
+    nose.main(addplugins=[ColorUnit()])
+```
 
+####Run the test files
+> nosetests **`--with-colorunit`**
 
-*  **Register `colorunit`**
+Without **`--with-colorunit`**, the output will be the original report!
+
+*Note:*
 	
-	Just write the following code snippet into **Any one** of your test files, for example, `test_demo.py`. 
-
-		import nose
-		from colorunit import ColorUnit
-		if __name__ == '__main__':
-    		nose.main(addplugins=[ColorUnit()])
-
-	By the way, I'm always confused that When the plugin has been installed using `setuptools`, why it also needs to be registered again!
-
-
-* **Run the test files**
-	
-	> python   test_demo.py **`--with-colorunit`**
-	
-	If there isn't **`--with-colorunit`**, the output will be the original output!
+	Be sure that you are working in your own python virtual environment
 
 -----------------------------------------------
-
 ###Who?
 > `Name`: **Lesus**
 
@@ -117,26 +84,26 @@ Only tree steps you need to follow:
 
 If you have some good advice or idea, Welcome to communicate with me via email or be one of contributors!
  
---------------------------------------
-
+----------------------------
 ###Drawbacks
-* Only for Linux[Fixed v0.1.2];
-
-* Why it needs to be registered again. For more informations, Please see **`How`** section
+* Only for python2.*, not supports python3.*.
 
 -----------------------------------------------
-
 ###TODO
-* Showing every test case taken time
-
 * Adding a decorator class or method for finding and showing these taken time over your expected taken time.
 
 * Logging the output into specific file
 
 ----------------------
+###Issues
+* Only for Linux[Fixed v0.1.2];
 
+* Showing every test case taken time[Fixed v0.1.4]
+
+* Why it needs to be registered again. For more informations, Please see **`How` : `Register colorunit`** section [Fixed v0.1.4]
+
+-----------------------------------------
 ###Thanks!
-
 * [`Vim 7.4`](http://vim.wendal.net/)
 
 * [`stackedit`](http://benweet.github.io/stackedit)
@@ -145,10 +112,13 @@ If you have some good advice or idea, Welcome to communicate with me via email o
 
 * [`colorama`](https://pypi.python.org/pypi/colorama)
 
+
 ----------------------------------------
 
 ###LICENSE
 [**`APACHE LICENSE VERSION 2.0`**](./LICENSE)
+
+Also see `LICENSE` file
 
 
 [nose]:https://nose.readthedocs.org/en/latest/

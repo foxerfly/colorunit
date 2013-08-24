@@ -6,3 +6,6 @@ def check_value(data_dict, value):
     except KeyError:
         logging.error("data does not contain '%s'", value)
     return False
+    
+def divide(x, y):
+    return x/y

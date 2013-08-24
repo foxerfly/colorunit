@@ -9,22 +9,22 @@ import time
 import traceback
 from nose.plugins import Plugin
 from nose.core import TextTestRunner
+try:
+    from colorama import init, Fore, AnsiToWin32
+except:
+    raise ImportError, "colorama isn't installed"
 
 class MColorStreamCrossPlatform(object):
     """decorate the stream: add some useful methods"""
-    def __init__(self, stream):
-        try:
-            from colorama import init, Fore, AnsiToWin32
-        except:
-            raise ImportError, "colorama isn't installed"
+    def __init__(self, stream=sys.stderr):
         # init the colorama
         init()
         self.fore = Fore
         if os.name == 'nt':
-            self.stream = AnsiToWin32(sys.stderr).stream
+            #on windows, show color instead of ASCII sequences.
+            self.stream = AnsiToWin32(sys.stderr).stream 
         else:
             self.stream = stream
-        
 
     def __getattr__(self, attr):
         if attr in ('stream', '__getstate__'):
@@ -137,9 +137,6 @@ class ColorUnit(Plugin):
         self.buffer = False
         self.dots = True
         self.descriptions = True
-    
-    #def options(self, parser, env):
-    #    parser.add_option()
 
     def getDescription(self, test):
         doc_first_line = test.shortDescription()
@@ -156,43 +153,51 @@ class ColorUnit(Plugin):
             self.stream.writeln(self.getDescription(test))
             self.stream.writeln(" ... ")
             self.stream.flush()
-
+        self.startTime = self.timer()
 
     def stopTest(self, test):
         self.stream.writeln()
     
     def addSuccess(self, test):
+        self.taken_time = self.timer(self.startTime)
         if self.showAll:
             self.stream.writeln("ok")
         elif self.dots:
             self.stream.green('[OK\t]')
-            self.stream.writeln(self.getDescription(test))
+            self.stream.write(self.getDescription(test))
+            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
             self.stream.flush()
 
     def addError(self, test, err):
+        self.taken_time = self.timer(self.startTime)
         if self.showAll:
             self.stream.writeln("ERROR")
         elif self.dots:
             self.stream.yellow('[ERROR\t]')
-            self.stream.writeln(self.getDescription(test))
-            self.stream.writeln(self._exc_info_to_string(err, test))
+            self.stream.write(self.getDescription(test))
+            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
+            self.show_beautiful_exc_info(self._exc_info_to_string(err, test))
             self.stream.flush()
 
     def addFailure(self, test, err):
+        self.taken_time = self.timer(self.startTime)
         if self.showAll:
             self.stream.writeln("FAIL")
         elif self.dots:
             self.stream.red('[FAIL\t]')
-            self.stream.writeln(self.getDescription(test))
-            self.stream.writeln(self._exc_info_to_string(err, test))
+            self.stream.write(self.getDescription(test))
+            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
+            self.show_beautiful_exc_info(self._exc_info_to_string(err, test))
             self.stream.flush()
 
     def addSkip(self, test, reason):
+        self.taken_time = self.timer(self.startTime)
         if self.showAll:
             self.stream.writeln("SKIP")
         elif self.dots:
             self.stream.blue("[SKIP\t]")
-            self.stream.writeln(self.getDescription(test))
+            self.stream.write(self.getDescription(test))
+            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
             self.stream.writeln("{0}".format(reason))
             self.stream.flush()
 
@@ -204,21 +209,24 @@ class ColorUnit(Plugin):
 
 
     def finalize(self, result):
-        #self.stream.writeln(str(result))
         pass
     
     def prepareTestRunner(self, runner):
         self.runner = MTextTestRunner(self.stream)
         return self.runner
 
-    #def formatErr(self, err):
-    #    exctype, value, tb = err
-    #    return "".join(traceback.format_exception(exctype, value, tb))
-
     def setOutputStream(self, stream):
-        # grab for own use and decorate it.
         return self.stream
-        
+
+    def show_beautiful_exc_info(self, exc_info_string):
+        """make the key message of exc_info outstand, It's easily and quickly to find the evil"""
+        if exc_info_string.endswith("\n"):
+            exc_info_string = exc_info_string[:-1] #trim the last '\n'
+        describleMsg, linefeed, keyMsg = exc_info_string.rpartition("\n")
+        self.stream.writeln(describleMsg)
+        self.stream.magenta(keyMsg)
+        self.stream.writeln()
+
     def _exc_info_to_string(self, err, test):
         """Converts a sys.exc_info()-style tuple of values into a string."""
         exctype, value, tb = err
@@ -246,6 +254,12 @@ class ColorUnit(Plugin):
                 msgLines.append(self.STDERR_LINE % error)
         return ''.join(msgLines)
 
+    def timer(self, otherTime=0):
+        if os.name == "nt":
+            begin_point = time.clock()
+        else:
+            begin_point = time.time()
+        return begin_point - otherTime
 
     def _is_relevant_tb_level(self, tb):
         return '__unittest' in tb.tb_frame.f_globals
