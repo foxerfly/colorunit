@@ -75,6 +75,50 @@ Without **`--with-colorunit`**, the output will be the original report!
 	Be sure that you are working in your own python virtual environment
 
 -----------------------------------------------
+###Customize
+* if you don't satisfy the default colormap and just want to use your own style 
+of colormap, here is a example:
+
+> In the top level of test folder, create a configurational file 
+called `colorunit_conf.ini`, by the way, you couldn't change the 
+configurational file's name, otherwise, it will use the default colormap.
+
+Save these as `colorunit_conf.ini`:
+
+```
+[Fore]
+#Foreground color
+#Optional: white, cyan, green, yellow, red, blue, magenta, or empty
+Run: cyan
+OK: green
+Error: yellow
+Fail: red
+Skip: blue
+KeyMsg: magenta
+Time: white
+
+[Back]
+#Background color: Default is the terminal's color
+#Optional: white, cyan, green, yellow, red, blue, magenta, or empty
+Run:
+OK:
+Error: 
+Fail:
+Skip:
+KeyMsg:
+Time:
+
+[Style]
+#Optional: bright, dim, normal, or empty 
+#Default is normal
+#Note: dim looks like normal when on windows 
+Style: bright
+
+```
+
+Also see `examples/colorunit_conf.ini`
+
+--------------------------------
 ###Who?
 > `Name`: **Lesus**
 

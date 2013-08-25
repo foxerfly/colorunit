@@ -3,8 +3,8 @@ import os
 
 
 setup(name="nose-colorxunit",
-        version = "0.1.4",
-        description = "make unittest formatted and colorful output",
+        version = "0.1.5",
+        description = "make unittest formatted and colorful output(cross platform)",
         long_description = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
         license = "Apache License,Version 2.0",
         author = "Lesus",

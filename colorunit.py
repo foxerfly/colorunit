@@ -1,25 +1,120 @@
 #!/usr/bin/python
 #coding: utf-8
-"""A nose plugin: Just make the python standard module: nose output with formatted and colorful more like XUnit output.
+#author: Lesus <walkingnine@gmail.com>
+"""A nose plugin: Just make the python standard module: 
+nose output with formatted and colorful more like XUnit output.
 """
 
 import os
+import io
 import sys
 import time
 import traceback
+import ConfigParser as CP
 from nose.plugins import Plugin
 from nose.core import TextTestRunner
 try:
-    from colorama import init, Fore, AnsiToWin32
+    from colorama import init, Fore, Back, Style, AnsiToWin32
 except:
     raise ImportError, "colorama isn't installed"
 
+
+class ConfReader(object):
+    """read the configurational file. Used by MColorStreamCrossPlatform"""
+    default_colormap = """
+[Fore]
+Run = cyan
+OK= green
+Error= yellow
+Fail= red
+Skip= blue
+KeyMsg= magenta
+Time= white
+
+[Style]
+Style= bright
+
+[Back]
+Run = ""
+OK = ""
+Error  = ""
+Fail = ""
+Skip = ""
+KeyMsg = ""
+Time = ""
+"""
+    def __init__(self, conf_file="colorunit_conf.ini"):
+        self.conf_file = conf_file.lower()
+        if os.path.exists(self.conf_file):
+            self.config = CP.ConfigParser()
+            self.config.read(self.conf_file)
+        else:
+            self.config = CP.RawConfigParser(allow_no_value=True)
+            self.config.readfp(io.BytesIO(ConfReader.default_colormap))
+        self.fore = Fore
+        self.back = Back
+        self.style = Style
+
+    def configSectionMap(self, section):
+        """Get the section in the configurational file
+        1) section is one of Fore, Back or Style"""
+        self.config_map = {}
+        self.system_map = {}
+        if section == "Fore":
+            self.system_map = {'green': self.fore.GREEN,'blue': self.fore.BLUE, 
+                        'white': self.fore.WHITE, 'magenta': self.fore.MAGENTA, 
+                        'yellow': self.fore.YELLOW,    'red': self.fore.RED, 
+                        'cyan': self.fore.CYAN}
+        elif section == "Back":
+            self.system_map = {'green': self.back.GREEN,'blue': self.back.BLUE, 
+                        'white': self.back.WHITE, 'magenta': self.back.MAGENTA, 
+                        'yellow': self.back.YELLOW,    'red': self.back.RED, 
+                        'cyan': self.back.CYAN}
+        elif section == "Style":
+            self.system_map = {'normal': self.style.NORMAL, 
+                    'bright': self.style.BRIGHT, 'dim': self.style.DIM}
+            
+        options = self.config.options(section)
+        for option in options:
+            self.config_map[option] = self.config.get(section, option)
+
+    def getValue(self, section, key):
+        """According to section and key, return the value.
+        for example: 
+        if:   section = 'Fore', key='error' 
+        then: self.config_map={'error':"red"}
+              self.system_map = {'red': self.fore.RED}
+        return self.system_map[self.config_map['error']]
+        """
+        self.configSectionMap(section)
+        if not self.config_map.has_key(key):
+            raise KeyError, "Please check the key in the " + self.conf_file \
+                    + " file if it exists spelling error"
+        system_map_key = self.config_map.get(key)
+        if self.system_map.has_key(system_map_key) or system_map_key == "": 
+            #if system_map has key or system_map_key is "", 
+            #then return the right value, 
+            if self.system_map.has_key(system_map_key):
+                system_map_value = self.system_map.get(system_map_key)
+            else:
+                system_map_value = ""
+        else:
+            raise KeyError, "Please check the value in the " + self.conf_file \
+                    + " file if it exists spelling error"
+
+        return system_map_value
+
+    def showColorMsg(self, key, msg):
+        return self.getValue("Fore", key) + self.getValue("Back", key) + \
+                self.getValue("Style", "style") + msg + self.style.RESET_ALL
+
+
 class MColorStreamCrossPlatform(object):
     """decorate the stream: add some useful methods"""
-    def __init__(self, stream=sys.stderr):
+    def __init__(self, stream=sys.stderr, conf_file="colorunit_conf.ini"):
         # init the colorama
         init()
-        self.fore = Fore
+        self.confReader = ConfReader(conf_file)
         if os.name == 'nt':
             #on windows, show color instead of ASCII sequences.
             self.stream = AnsiToWin32(sys.stderr).stream 
@@ -36,26 +131,40 @@ class MColorStreamCrossPlatform(object):
             self.write(msg)
         self.write('\n')
 
-    def red(self, msg):
-        self.write(self.fore.RED + msg + self.fore.RESET)
+    def run(self, msg, linefeed=False):
+        self.write(self.confReader.showColorMsg("run", msg))
+        if linefeed:
+            self.writeln()
 
-    def green(self, msg):
-        self.write(self.fore.GREEN + msg + self.fore.RESET)
+    def ok(self, msg, linefeed=False):
+        self.write(self.confReader.showColorMsg("ok", msg))
+        if linefeed:
+            self.writeln()
 
-    def yellow(self, msg):
-        self.write(self.fore.YELLOW + msg + self.fore.RESET)
+    def error(self, msg, linefeed=False):
+        self.write(self.confReader.showColorMsg("error", msg))
+        if linefeed:
+            self.writeln()
 
-    def cyan(self, msg):
-        self.write(self.fore.CYAN + msg + self.fore.RESET)
+    def fail(self, msg, linefeed=False):
+        self.write(self.confReader.showColorMsg("fail", msg))
+        if linefeed:
+            self.writeln()
 
-    def white(self, msg):
-        self.write(self.fore.WHITE + msg + self.fore.RESET)
+    def skip(self, msg, linefeed=False):
+        self.write(self.confReader.showColorMsg("skip", msg))
+        if linefeed:
+            self.writeln()
 
-    def blue(self, msg):
-        self.write(self.fore.BLUE + msg + self.fore.RESET)
+    def keyMsg(self, msg, linefeed=False):
+        self.write(self.confReader.showColorMsg("keymsg", msg))
+        if linefeed:
+            self.writeln()
 
-    def magenta(self, msg):
-        self.write(self.fore.MAGENTA + msg + self.fore.RESET)
+    def showTime(self, msg, linefeed=True):
+        self.write(self.confReader.showColorMsg("time", msg))
+        if linefeed:
+            self.writeln()
 
 
 class MTextTestRunner(TextTestRunner):
@@ -137,6 +246,7 @@ class ColorUnit(Plugin):
         self.buffer = False
         self.dots = True
         self.descriptions = True
+        self.startTimer = 0
 
     def getDescription(self, test):
         doc_first_line = test.shortDescription()
@@ -147,57 +257,57 @@ class ColorUnit(Plugin):
 
     def startTest(self, test):
         self.stream.writeln(self.separator1)
-        self.stream.cyan("[RUN\t]")
+        self.stream.run("[RUN\t]")
         self.stream.writeln(self.getDescription(test))
         if self.showAll:
             self.stream.writeln(self.getDescription(test))
             self.stream.writeln(" ... ")
             self.stream.flush()
-        self.startTime = self.timer()
+        self.startTimer = self.timer()
 
     def stopTest(self, test):
         self.stream.writeln()
     
     def addSuccess(self, test):
-        self.taken_time = self.timer(self.startTime)
+        self.taken_time = self.timer(self.startTimer)
         if self.showAll:
-            self.stream.writeln("ok")
+            self.stream.ok("ok")
         elif self.dots:
-            self.stream.green('[OK\t]')
+            self.stream.ok('[OK\t]')
             self.stream.write(self.getDescription(test))
-            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
+            self.stream.showTime("  {0:.4f} sec".format(round(self.taken_time, 4)))
             self.stream.flush()
 
     def addError(self, test, err):
-        self.taken_time = self.timer(self.startTime)
+        self.taken_time = self.timer(self.startTimer)
         if self.showAll:
-            self.stream.writeln("ERROR")
+            self.stream.error("ERROR")
         elif self.dots:
-            self.stream.yellow('[ERROR\t]')
+            self.stream.error('[ERROR\t]')
             self.stream.write(self.getDescription(test))
-            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
+            self.stream.showTime("  {0:.4f} sec".format(round(self.taken_time, 4)))
             self.show_beautiful_exc_info(self._exc_info_to_string(err, test))
             self.stream.flush()
 
     def addFailure(self, test, err):
-        self.taken_time = self.timer(self.startTime)
+        self.taken_time = self.timer(self.startTimer)
         if self.showAll:
-            self.stream.writeln("FAIL")
+            self.stream.fail("FAIL")
         elif self.dots:
-            self.stream.red('[FAIL\t]')
+            self.stream.fail('[FAIL\t]')
             self.stream.write(self.getDescription(test))
-            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
+            self.stream.showTime("  {0:.4f} sec".format(round(self.taken_time, 4)))
             self.show_beautiful_exc_info(self._exc_info_to_string(err, test))
             self.stream.flush()
 
     def addSkip(self, test, reason):
-        self.taken_time = self.timer(self.startTime)
+        self.taken_time = self.timer(self.startTimer)
         if self.showAll:
-            self.stream.writeln("SKIP")
+            self.stream.skip("SKIP")
         elif self.dots:
-            self.stream.blue("[SKIP\t]")
+            self.stream.skip("[SKIP\t]")
             self.stream.write(self.getDescription(test))
-            self.stream.writeln("  {0:.4f} sec".format(round(self.taken_time, 4)))
+            self.stream.showTime("  {0:.4f} sec".format(round(self.taken_time, 4)))
             self.stream.writeln("{0}".format(reason))
             self.stream.flush()
 
@@ -219,12 +329,13 @@ class ColorUnit(Plugin):
         return self.stream
 
     def show_beautiful_exc_info(self, exc_info_string):
-        """make the key message of exc_info outstand, It's easily and quickly to find the evil"""
+        """make the key message of exc_info outstand, 
+        It's easily and quickly to find the evil"""
         if exc_info_string.endswith("\n"):
             exc_info_string = exc_info_string[:-1] #trim the last '\n'
         describleMsg, linefeed, keyMsg = exc_info_string.rpartition("\n")
         self.stream.writeln(describleMsg)
-        self.stream.magenta(keyMsg)
+        self.stream.keyMsg(keyMsg)
         self.stream.writeln()
 
     def _exc_info_to_string(self, err, test):
@@ -255,6 +366,8 @@ class ColorUnit(Plugin):
         return ''.join(msgLines)
 
     def timer(self, otherTime=0):
+        """calculate the taken time
+        1) if otherTime equals 0, it will return now"""
         if os.name == "nt":
             begin_point = time.clock()
         else:
