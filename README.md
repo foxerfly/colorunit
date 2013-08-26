@@ -128,10 +128,6 @@ Also see `examples/colorunit_conf.ini`
 
 If you have some good advice or idea, Welcome to communicate with me via email or be one of contributors!
  
-----------------------------
-###Drawbacks
-* Only for python2.*, not supports python3.*.
-
 -----------------------------------------------
 ###TODO
 * Adding a decorator class or method for finding and showing these taken time over your expected taken time.
@@ -141,6 +137,8 @@ If you have some good advice or idea, Welcome to communicate with me via email o
 ----------------------
 ###Issues
 * Only for Linux[Fixed v0.1.2];
+
+* Only for python2.*, not supports python3.*.[Fixed v0.2.0]
 
 * Showing every test case taken time[Fixed v0.1.4]
 
