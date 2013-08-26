@@ -10,13 +10,17 @@ import io
 import sys
 import time
 import traceback
-import ConfigParser as CP
 from nose.plugins import Plugin
 from nose.core import TextTestRunner
 try:
+    import ConfigParser as CP
+except ImportError:
+    import configparser as CP
+
+try:
     from colorama import init, Fore, Back, Style, AnsiToWin32
 except:
-    raise ImportError, "colorama isn't installed"
+    raise ImportError("colorama isn't installed")
 
 
 class ConfReader(object):
@@ -87,20 +91,20 @@ Time = ""
         return self.system_map[self.config_map['error']]
         """
         self.configSectionMap(section)
-        if not self.config_map.has_key(key):
-            raise KeyError, "Please check the key in the " + self.conf_file \
-                    + " file if it exists spelling error"
+        if key not in self.config_map:
+            raise KeyError("Please check the key in the " + self.conf_file \
+                    + " file if it exists spelling error")
         system_map_key = self.config_map.get(key)
-        if self.system_map.has_key(system_map_key) or system_map_key == "": 
+        if system_map_key in self.system_map or system_map_key == "": 
             #if system_map has key or system_map_key is "", 
             #then return the right value, 
-            if self.system_map.has_key(system_map_key):
+            if system_map_key in self.system_map:
                 system_map_value = self.system_map.get(system_map_key)
             else:
                 system_map_value = ""
         else:
-            raise KeyError, "Please check the value in the " + self.conf_file \
-                    + " file if it exists spelling error"
+            raise KeyError("Please check the value in the " + self.conf_file \
+                    + " file if it exists spelling error")
 
         return system_map_value
 
@@ -198,9 +202,9 @@ class MTextTestRunner(TextTestRunner):
 
         expectedFails = unexpectedSuccesses = skipped = 0
         try:
-            results = map(len, (result.expectedFailures,
+            results = list(map(len, (result.expectedFailures,
                                 result.unexpectedSuccesses,
-                                result.skipped))
+                                result.skipped)))
         except AttributeError:
             pass
         else:
@@ -209,7 +213,7 @@ class MTextTestRunner(TextTestRunner):
         infos = []
         if not result.wasSuccessful():
             self.stream.write("FAILED")
-            failed, errored = map(len, (result.failures, result.errors))
+            failed, errored = list(map(len, (result.failures, result.errors)))
             if failed:
                 infos.append("failures=%d" % failed)
             if errored:

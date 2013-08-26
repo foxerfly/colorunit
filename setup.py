@@ -1,9 +1,8 @@
 from setuptools import setup, find_packages
 import os
 
-
 setup(name="nose-colorxunit",
-        version = "0.1.5",
+        version = "0.2.0",
         description = "make unittest formatted and colorful output(cross platform)",
         long_description = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
         license = "Apache License,Version 2.0",
@@ -19,6 +18,7 @@ setup(name="nose-colorxunit",
             "Operating System :: OS Independent", 
             "Programming Language :: Python",
             "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3.2",
             "Programming Language :: Python :: Implementation :: CPython",
             "Topic :: Software Development :: Testing",
             ],
